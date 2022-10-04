@@ -1,0 +1,7 @@
+.pio
+!**/.pio/build/ATmega32/firmware.hex
+test
+.vscode/
+*.workspace
+*.code-workspace
+*.pdsbak
