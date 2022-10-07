@@ -128,96 +128,51 @@ i2c_return_t TWI_read(i2c_mode_t mode, uint8_t *buff) {
     i2c_status_t operation = ((mode == TWI_slave) ? TW_SR_DATA_ACK
                                                   : TW_MR_DATA_ACK);
     _TWI_try(TWEA);
+
     _TWI_poll(operation);
+
     *buff = TWDR;
+    
     return TWI_check_status(operation);
 }
 
-i2c_return_t TWI_send_str(i2c_mode_t mode, ...) {
-    i2c_return_t status = 0;
-    va_list argv;
-    va_start(argv, mode);
-    switch (mode) {
-        case TWI_master:
-            TWI_start();
-            uint8_t address = va_arg(argv, int);
-            TWI_write_req(address);
-            break;
-        case TWI_slave:
-            TWI_read_accept();
-            break;
-    }
-    const char *str = va_arg(argv, char *);
-    va_end(argv);
-
-    do {
-        status |= (TWI_write(mode, *(uint8_t *)str) & TWI_ERROR_MASK);
-        str++;
-    } while (*(str - 1) != '\0');
-
-    if (mode == TWI_master)
-        TWI_stop();
-
-    return (((mode == TWI_slave) ? TW_ST_STRING
-                                 : TW_MT_STRING) |
-            status);
-}
-
-i2c_return_t TWI_recieve_str(i2c_mode_t mode, ...) {
-    i2c_return_t status = 0;
-    va_list argv;
-    va_start(argv, mode);
-    switch (mode) {
-        case TWI_master:
-            TWI_start();
-            uint8_t address = va_arg(argv, int);
-            TWI_read_req(address);
-            break;
-        case TWI_slave:
-            TWI_write_accept();
-            break;
-    }
-    char *str = va_arg(argv, char *);
-    va_end(argv);
-
-    do {
-        status |= (TWI_read(mode, (uint8_t *)str) & TWI_ERROR_MASK);
-        str++;
-    } while (*(str - 1) != '\0');
-
-    if (mode == TWI_master)
-        TWI_stop();
-
-    return (((mode == TWI_slave) ? TW_SR_STRING
-                                 : TW_MR_STRING) |
-            status);
-}
-
 i2c_return_t TWI_send_byte(i2c_mode_t mode, ...) {
-    i2c_return_t status = 0;
+    i2c_err_t status = 0;
+    i2c_return_t return_code = TWI_ERR;
+
     va_list argv;
     va_start(argv, mode);
+
     switch (mode) {
-        case TWI_master:
-            TWI_start();
+        case TWI_master: {
             uint8_t address = va_arg(argv, int);
+            const uint8_t data = va_arg(argv, int);
+            va_end(argv);
+
+            TWI_start();
+
             TWI_write_req(address);
+
+            status |= TWI_write(mode, data) & TWI_ERROR_MASK;
+
+            TWI_stop();
+
+            return_code = (TW_MT_STRING | status);
             break;
-        case TWI_slave:
+        }
+        case TWI_slave: {
+            const uint8_t data = va_arg(argv, int);
+            va_end(argv);
+
             TWI_read_accept();
+
+            status |= TWI_write(mode, data) & TWI_ERROR_MASK;
+
+            return_code = (TW_ST_STRING | status);
             break;
+        }
     }
-    const uint8_t data = va_arg(argv, int);
-    va_end(argv);
-
-    status |= (TWI_write(mode, data) & TWI_ERROR_MASK);
-
-    if (mode == TWI_master)
-        TWI_stop();
-
-    return (((mode == TWI_slave) ? TW_ST_STRING
-                                 : TW_MT_STRING) |
-            status);
+    return return_code;
 }
 
 i2c_return_t TWI_recieve_byte(i2c_mode_t mode, ...) {
@@ -233,13 +188,13 @@ i2c_return_t TWI_recieve_byte(i2c_mode_t mode, ...) {
             uint8_t *data = va_arg(argv, uint8_t *);
             va_end(argv);
 
-            status |= TWI_start() & TWI_ERROR_MASK;
+            TWI_start();
 
-            status |= TWI_read_req(address) & TWI_ERROR_MASK;
+            TWI_read_req(address);
 
             status |= TWI_read(mode, (uint8_t *)data) & TWI_ERROR_MASK;
 
-            status |= TWI_stop() & TWI_ERROR_MASK;
+            TWI_stop();
 
             return_code = (TW_MR_STRING | status);
             break;
@@ -248,9 +203,98 @@ i2c_return_t TWI_recieve_byte(i2c_mode_t mode, ...) {
             uint8_t *data = va_arg(argv, uint8_t *);
             va_end(argv);
 
-            status |= TWI_write_accept() & TWI_ERROR_MASK;
+            TWI_write_accept();
 
             status |= TWI_read(mode, (uint8_t *)data) & TWI_ERROR_MASK;
+
+            return_code = (TW_SR_STRING | status);
+            break;
+        }
+    }
+    return return_code;
+}
+
+i2c_return_t TWI_send_str(i2c_mode_t mode, ...) {
+    i2c_return_t status = 0;
+    i2c_return_t return_code = TWI_ERR;
+
+    va_list argv;
+    va_start(argv, mode);
+
+    switch (mode) {
+        case TWI_master: {
+            uint8_t address = va_arg(argv, int);
+            const char *str = va_arg(argv, char *);
+            va_end(argv);
+
+            TWI_start();
+            TWI_write_req(address);
+
+            do {
+                status |= (TWI_write(mode, *(uint8_t *)str) & TWI_ERROR_MASK);
+                str++;
+            } while (*(str - 1) != '\0');
+
+            TWI_stop();
+
+            return_code = (TW_MT_STRING | status);
+            break;
+        }
+        case TWI_slave: {
+            const char *str = va_arg(argv, char *);
+            va_end(argv);
+
+            TWI_read_accept();
+
+            do {
+                status |= (TWI_write(mode, *(uint8_t *)str) & TWI_ERROR_MASK);
+                str++;
+            } while (*(str - 1) != '\0');
+
+            return_code = (TW_ST_STRING | status);
+            break;
+        }
+    }
+    return return_code;
+}
+
+i2c_return_t TWI_recieve_str(i2c_mode_t mode, ...) {
+    i2c_return_t status = 0;
+    i2c_return_t return_code = TWI_ERR;
+
+    va_list argv;
+    va_start(argv, mode);
+
+    switch (mode) {
+        case TWI_master: {
+            uint8_t address = va_arg(argv, int);
+            char *str = va_arg(argv, char *);
+            va_end(argv);
+
+            TWI_start();
+
+            TWI_read_req(address);
+
+            do {
+                status |= TWI_read(mode, (uint8_t *)str) & TWI_ERROR_MASK;
+                str++;
+            } while (*(str - 1) != '\0');
+
+            TWI_stop();
+
+            return_code = (TW_MR_STRING | status);
+            break;
+        }
+        case TWI_slave: {
+            char *str = va_arg(argv, char *);
+            va_end(argv);
+
+            TWI_write_accept();
+
+            do {
+                status |= TWI_read(mode, (uint8_t *)str) & TWI_ERROR_MASK;
+                str++;
+            } while (*(str - 1) != '\0');
 
             return_code = (TW_SR_STRING | status);
             break;

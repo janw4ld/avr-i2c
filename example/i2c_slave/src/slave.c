@@ -4,7 +4,6 @@
 
 #include "light.h"
 
-
 void update_light(uint8_t recieved_data);
 #define NULL ((void *)0)
 
@@ -22,7 +21,8 @@ void update_light(uint8_t recieved_data) {
     static uint8_t light_status;
 
     if (recieved_data) {
-        light_status ^= (recieved_data & LIGHT_MASK);
+        light_status |= recieved_data & LIGHT_MASK;
+        light_status &= ~recieved_data >> OFF_SHIFT;
 
         LIGHT_PORT &= ~LIGHT_MASK;
         LIGHT_PORT |= light_status;

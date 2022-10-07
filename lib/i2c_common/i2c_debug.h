@@ -19,16 +19,16 @@ uint8_t depth = 0;
     do {                                                        \
         switch (TWI_STA) {                                      \
             case TWI_OK:                                        \
-                lcd_printf(" L%d:ok:%2x", depth, TWI_RET);      \
+                lcd_printf(" L%d:ok:%2x ", depth, TWI_RET);     \
                 break;                                          \
             case TWI_TIMEOUT:                                   \
-                lcd_printf(" L%d:timeout:%2x", depth, TWI_RET); \
+                lcd_printf(" L%d:timeout:%2x ", depth, TWI_RET);\
                 break;                                          \
             case TWI_ERR:                                       \
-                lcd_printf(" L%d:error:%2x", depth, TWI_RET);   \
+                lcd_printf(" L%d:error:%2x ", depth, TWI_RET);  \
                 break;                                          \
             default:                                            \
-                lcd_printf(" L%d:unknown%2x", depth);           \
+                lcd_printf(" L%d:unknown%2x ", depth);          \
                 break;                                          \
         }                                                       \
     } while (0)
