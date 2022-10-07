@@ -125,7 +125,7 @@ i2c_return_t TWI_read_accept(void) {
 }
 
 i2c_return_t TWI_write(i2c_mode_t mode, uint8_t data) {
-    i2c_status_t operation = 0;
+    i2c_status_t operation;
 
     TWDR = data;
 
