@@ -22,7 +22,7 @@
 #endif
 
 #define _TWI_try(bit)                                                  \
-    do {                                                               \
+    {                                                                  \
         _set_bit(TWCR, bit);                                           \
         _set_bit(TWCR, TWINT);                                         \
         _set_bit(TWCR, TWEN);                                          \
@@ -35,10 +35,10 @@
             _clear_bit(TWCR, bit);                                     \
             return (TW_STATUS | TWI_TIMEOUT);                          \
         }                                                              \
-    } while (0)
+    }
 
 #define _TWI_poll(condition)                                          \
-    do {                                                              \
+    {                                                                 \
         uint32_t timeout = 0;                                         \
         while ((TW_STATUS != condition) && (timeout < TWI_RETRIES)) { \
             _delay_us(TWI_DELAY);                                     \
@@ -47,7 +47,23 @@
         if (timeout == TWI_RETRIES) {                                 \
             return (TW_STATUS | TWI_TIMEOUT);                         \
         }                                                             \
-    } while (0)
+    }
+
+// __always_inline static
+// i2c_return_t TWI_poll(i2c_status_t operation) {
+//     uint32_t timeout = 0;
+
+//     while ((TW_STATUS != operation) &&
+//            (timeout < TWI_RETRIES)) {
+//         _delay_us(TWI_DELAY);
+//         timeout++;
+//     }
+
+//     return (
+//         (timeout == TWI_RETRIES) ? (TW_STATUS | TWI_TIMEOUT)
+//                                  : TWI_OK
+//     );
+// }
 
 #define _TWI_wait _TWI_try(TWINT)
 
@@ -132,7 +148,7 @@ i2c_return_t TWI_read(i2c_mode_t mode, uint8_t *buff) {
     _TWI_poll(operation);
 
     *buff = TWDR;
-    
+
     return TWI_check_status(operation);
 }
 
@@ -306,7 +322,6 @@ i2c_return_t TWI_recieve_str(i2c_mode_t mode, ...) {
 /*
 i2c_return_t TWI_printf(i2c_mode_t mode, char *format, ...)
 {
-
     va_list args;
     va_start(args, format);
     uint8_t len = snprintf(NULL, 0, format, args);
@@ -317,4 +332,5 @@ i2c_return_t TWI_printf(i2c_mode_t mode, char *format, ...)
     free(str_buffer);
     return ((mode == TWI_slave) ? TW_ST_STRING
                                 : TW_MT_STRING);
-} */
+}
+*/

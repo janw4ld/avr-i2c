@@ -8,6 +8,8 @@
 
 #define TW_STATUS (TWSR & TW_STATUS_MASK)
 
+#define __finline inline __attribute__((always_inline)) 
+
 void (*TWI_int_recieved)(uint8_t);
 void (*TWI_int_requested)();
 
@@ -19,7 +21,8 @@ void TWI_int(volatile void (*on_recieve)(uint8_t),
     _TWI_int;
 }
 
-inline __attribute__((always_inline)) void TWI_write(uint8_t data) {
+__finline
+void TWI_write(uint8_t data) {
     TWDR = data;
 }
 
@@ -40,7 +43,7 @@ ISR(TWI_vect) {
         //     break;
         // case TW_SR_SLA_ACK:
         // case TW_ST_DATA_ACK:
-        //     //_TWI_int;
+        //     _TWI_int;
         //     break;
     }
 }
