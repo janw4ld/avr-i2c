@@ -125,15 +125,20 @@ i2c_return_t TWI_read_accept(void) {
 }
 
 i2c_return_t TWI_write(i2c_mode_t mode, uint8_t data) {
-    i2c_status_t operation = ((mode == TWI_slave) ? TW_ST_DATA_ACK
-                                                  : TW_MT_DATA_ACK);
+    i2c_status_t operation = 0;
 
     TWDR = data;
 
-    if (mode == TWI_slave) {
-        _TWI_try(TWEA);
-    } else {
-        _TWI_wait;
+    switch (mode) {
+        case TWI_master:
+            operation = TW_MT_DATA_ACK;
+            _TWI_wait;
+            break;
+
+        case TWI_slave:
+            operation = TW_ST_DATA_ACK;
+            _TWI_try(TWEA);
+            break;
     }
 
     _TWI_poll(operation);
@@ -141,8 +146,11 @@ i2c_return_t TWI_write(i2c_mode_t mode, uint8_t data) {
 }
 
 i2c_return_t TWI_read(i2c_mode_t mode, uint8_t *buff) {
-    i2c_status_t operation = ((mode == TWI_slave) ? TW_SR_DATA_ACK
-                                                  : TW_MR_DATA_ACK);
+    i2c_status_t operation = (
+        (mode == TWI_slave) ? TW_SR_DATA_ACK
+                            : TW_MR_DATA_ACK
+    );
+
     _TWI_try(TWEA);
 
     _TWI_poll(operation);
