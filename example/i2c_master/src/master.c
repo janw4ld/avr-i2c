@@ -1,7 +1,8 @@
 #include "lcd.h"
 #include "i2c_poll.h"
+#define _TWI_DEBUG
+#define _TWI_LCD
 #include "i2c_debug.h"
-
 #include <util/delay.h>
 
 #include "light.h"
@@ -9,7 +10,9 @@
 int main() {
     TWI_init(BITRATE, MASTER_ADDRESS);
 
+    #ifdef _LCD_H
     lcd_init();
+    #endif
 
     while (1) {
         _TWI_DEBUG TWI_send_byte(TWI_master, SLAVE_ADDRESS, FR_ON);

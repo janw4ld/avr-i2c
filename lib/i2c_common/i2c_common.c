@@ -1,11 +1,13 @@
 #include "i2c_common.h"
 
+#include <avr/io.h>
+
 #include "macros.h"
 #include "psc.h"
 
-#include <avr/io.h>
-
 #include <math.h>
+
+#define TW_STATUS (TWSR & TW_STATUS_MASK)
 
 i2c_return_t TWI_init(uint32_t frequency, uint8_t address) {
     uint16_t bitrate = UINT16_MAX;
@@ -44,7 +46,8 @@ i2c_return_t TWI_check_status(i2c_status_t operation) {
     return return_code;
 }
 
-inline __attribute__((always_inline)) void TWI_off() {
+__finline
+void TWI_off() {
     TWSR = 0;
     TWBR = 0;
     TWAR = 0;

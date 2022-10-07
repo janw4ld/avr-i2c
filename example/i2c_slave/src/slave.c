@@ -1,7 +1,9 @@
-#include "i2c_int.h"
 #include <avr/io.h>
+
+#include "i2c_int.h"
+
 #include "light.h"
-#include <avr/interrupt.h>
+
 
 void update_light(uint8_t recieved_data);
 #define NULL ((void *)0)
