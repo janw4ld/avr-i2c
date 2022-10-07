@@ -49,22 +49,6 @@
         }                                                             \
     }
 
-// __always_inline static
-// i2c_return_t TWI_poll(i2c_status_t operation) {
-//     uint32_t timeout = 0;
-
-//     while ((TW_STATUS != operation) &&
-//            (timeout < TWI_RETRIES)) {
-//         _delay_us(TWI_DELAY);
-//         timeout++;
-//     }
-
-//     return (
-//         (timeout == TWI_RETRIES) ? (TW_STATUS | TWI_TIMEOUT)
-//                                  : TWI_OK
-//     );
-// }
-
 #define _TWI_wait _TWI_try(TWINT)
 
 i2c_return_t TWI_start() {
