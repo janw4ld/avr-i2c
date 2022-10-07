@@ -1,16 +1,18 @@
 #include "i2c_int.h"
 
+#include <avr/io.h>
 #include <avr/interrupt.h>
-
-#include <math.h>
 
 // acknowledge the interrupt and clear TWINT bit
 #define _TWI_int TWCR = (1 << TWIE) | (1 << TWINT) | (1 << TWEA) | (1 << TWEN)
 
+#define TW_STATUS (TWSR & TW_STATUS_MASK)
+
 void (*TWI_int_recieved)(uint8_t);
 void (*TWI_int_requested)();
 
-void TWI_int(volatile void (*on_recieve)(uint8_t), volatile void (*on_request)()) {
+void TWI_int(volatile void (*on_recieve)(uint8_t),
+             volatile void (*on_request)()) {
     TWI_int_recieved = on_recieve;
     TWI_int_requested = on_request;
     sei();

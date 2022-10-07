@@ -38,8 +38,6 @@ typedef enum i2c_mode_t {
 
 typedef uint16_t i2c_return_t;
 
-#define TW_STATUS (TWSR & TW_STATUS_MASK)
-
 i2c_return_t TWI_init(uint32_t frequency, uint8_t address);
 i2c_return_t TWI_check_status(i2c_status_t operation);
 void TWI_off();

@@ -12,6 +12,8 @@
 #define TWI_READ 1
 #define TWI_WRITE 0
 
+#define TW_STATUS (TWSR & TW_STATUS_MASK)
+
 #ifndef TWI_RETRIES
 #define TWI_RETRIES 5000
 #endif
@@ -219,30 +221,42 @@ i2c_return_t TWI_send_byte(i2c_mode_t mode, ...) {
 }
 
 i2c_return_t TWI_recieve_byte(i2c_mode_t mode, ...) {
-    i2c_return_t status = 0;
+    i2c_err_t status = 0;
+    i2c_return_t return_code = TWI_ERR;
+
     va_list argv;
     va_start(argv, mode);
+
     switch (mode) {
-        case TWI_master:
-            TWI_start();
+        case TWI_master: {
             uint8_t address = va_arg(argv, int);
-            TWI_read_req(address);
+            uint8_t *data = va_arg(argv, uint8_t *);
+            va_end(argv);
+
+            status |= TWI_start() & TWI_ERROR_MASK;
+
+            status |= TWI_read_req(address) & TWI_ERROR_MASK;
+
+            status |= TWI_read(mode, (uint8_t *)data) & TWI_ERROR_MASK;
+
+            status |= TWI_stop() & TWI_ERROR_MASK;
+
+            return_code = (TW_MR_STRING | status);
             break;
-        case TWI_slave:
-            TWI_write_accept();
+        }
+        case TWI_slave: {
+            uint8_t *data = va_arg(argv, uint8_t *);
+            va_end(argv);
+
+            status |= TWI_write_accept() & TWI_ERROR_MASK;
+
+            status |= TWI_read(mode, (uint8_t *)data) & TWI_ERROR_MASK;
+
+            return_code = (TW_SR_STRING | status);
             break;
+        }
     }
-    uint8_t *data = va_arg(argv, uint8_t *);
-    va_end(argv);
-
-    status |= (TWI_read(mode, (uint8_t *)data) & TWI_ERROR_MASK);
-
-    if (mode == TWI_master)
-        TWI_stop();
-
-    return (((mode == TWI_slave) ? TW_SR_STRING
-                                 : TW_MR_STRING) |
-            status);
+    return return_code;
 }
 
 /*
