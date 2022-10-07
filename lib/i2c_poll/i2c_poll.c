@@ -49,21 +49,21 @@
         }                                                             \
     }
 
-// __always_inline static
-// i2c_return_t TWI_poll(i2c_status_t operation) {
-//     uint32_t timeout = 0;
+__finline static
+i2c_return_t TWI_poll(i2c_status_t operation) {
+    uint32_t timeout = 0;
 
-//     while ((TW_STATUS != operation) &&
-//            (timeout < TWI_RETRIES)) {
-//         _delay_us(TWI_DELAY);
-//         timeout++;
-//     }
+    while ((TW_STATUS != operation) &&
+           (timeout < TWI_RETRIES)) {
+        _delay_us(TWI_DELAY);
+        timeout++;
+    }
 
-//     return (
-//         (timeout == TWI_RETRIES) ? (TW_STATUS | TWI_TIMEOUT)
-//                                  : TWI_OK
-//     );
-// }
+    return (
+        (timeout == TWI_RETRIES) ? (TW_STATUS | TWI_TIMEOUT)
+                                 : (operation | TWI_OK)
+    );
+}
 
 #define _TWI_wait _TWI_try(TWINT)
 
@@ -106,8 +106,8 @@ i2c_return_t TWI_read_req(uint8_t address) {
 
     _TWI_wait;
 
-    _TWI_poll(TW_MT_SLA_R_ACK);
-    return TWI_check_status(TW_MT_SLA_R_ACK);
+    return TWI_poll(TW_MT_SLA_R_ACK);
+    // return TWI_check_status(TW_MT_SLA_R_ACK);
 }
 
 i2c_return_t TWI_write_accept(void) {
@@ -141,8 +141,8 @@ i2c_return_t TWI_write(i2c_mode_t mode, uint8_t data) {
             break;
     }
 
-    _TWI_poll(operation);
-    return TWI_check_status(operation);
+    return TWI_poll(operation);
+    //return TWI_check_status(operation);
 }
 
 i2c_return_t TWI_read(i2c_mode_t mode, uint8_t *buff) {
@@ -153,9 +153,11 @@ i2c_return_t TWI_read(i2c_mode_t mode, uint8_t *buff) {
 
     _TWI_try(TWEA);
 
-    _TWI_poll(operation);
-
-    *buff = TWDR;
+    if (TWI_poll(operation)&TWI_ERROR_MASK == TWI_OK){
+        *buff = TWDR;
+    } else {
+        return (operation | TWI_TIMEOUT);
+    }
 
     return TWI_check_status(operation);
 }
