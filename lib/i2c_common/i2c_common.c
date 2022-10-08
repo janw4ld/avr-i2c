@@ -9,6 +9,8 @@
 
 #define TW_STATUS (TWSR & TW_STATUS_MASK)
 
+#define __finline inline __attribute__((always_inline)) 
+
 i2c_return_t TWI_init(uint32_t frequency, uint8_t address) {
     uint16_t bitrate = UINT16_MAX;
     uint8_t scale;
