@@ -80,8 +80,8 @@ void lcd_send_data(char data) {
 #ifdef LCD_TRACK_POS
     if ((++xpos >= LCD_LENGTH)) {   // if x position overflows, move it to
         xpos = 0;                   // the first character
-        ypos++;
-        ypos %= LCD_LINES;  // of the next line, but rollover the line number on overflow
+        ypos++;                     // of the next line, but
+        ypos %= LCD_LINES;          // rollover the line number on overflow
         lcd_set_cursor(xpos, ypos);
     }
 #endif

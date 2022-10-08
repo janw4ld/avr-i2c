@@ -14,6 +14,7 @@ void dio_set_level(dio_t dio, dio_level_t level) {
     _assign_bit(_port(dio), _pin(dio), level);
 }
 
+__finline
 dio_level_t dio_get_level(dio_t dio) {
     return _get_bit(_read(dio), _pin(dio));
 }
@@ -24,13 +25,14 @@ void dio_set_port_direction(dio_port_t port, dio_direction_t direction) {
             _ddr(port) &= ~REG_MASK;  // take all the bits LOW
             break;
         case 1:                       // if it corresponds to HIGH
-            _ddr(port) = REG_MASK;    // pull all the bits HIGH
+            _ddr(port) |= REG_MASK;    // pull all the bits HIGH
             break;
         default:                      // on invalid direction,
             break;                    // do nothing
     }
 }
 
+__finline
 void dio_set_port_level(dio_port_t port, dio_level_t level) {
     _port(port) = (level & REG_MASK);
 }
