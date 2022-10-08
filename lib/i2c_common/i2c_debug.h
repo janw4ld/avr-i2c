@@ -16,7 +16,7 @@ uint8_t depth = 0;
 #define TWI_RET (twi_return & ~TWI_ERROR_MASK)
 #define TWI_STA (twi_return & TWI_ERROR_MASK)
 #define _TWI_LCD                                                \
-    {                                                        \
+    {                                                           \
         switch (TWI_STA) {                                      \
             case TWI_OK:                                        \
                 lcd_printf(" L%d:ok:%2X ", depth, TWI_RET);     \

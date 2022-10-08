@@ -21,32 +21,34 @@
 #define TWI_DELAY 1
 #endif
 
-#define _TWI_try(bit)                                                  \
-    {                                                                  \
-        _set_bit(TWCR, bit);                                           \
-        _set_bit(TWCR, TWINT);                                         \
-        _set_bit(TWCR, TWEN);                                          \
-        uint32_t timeout = 0;                                          \
-        while (_get_bit(TWCR, TWINT) == 0 && timeout <= TWI_RETRIES) { \
-            _delay_us(TWI_DELAY);                                      \
-            timeout++;                                                 \
-        }                                                              \
-        if (timeout == TWI_RETRIES) {                                  \
-            _clear_bit(TWCR, bit);                                     \
-            return (TW_STATUS | TWI_TIMEOUT);                          \
-        }                                                              \
+#define _TWI_try(bit)                         \
+    {                                         \
+        _set_bit(TWCR, bit);                  \
+        _set_bit(TWCR, TWINT);                \
+        _set_bit(TWCR, TWEN);                 \
+        uint32_t timeout = 0;                 \
+        while (_get_bit(TWCR, TWINT) == 0 &&  \
+               timeout <= TWI_RETRIES) {      \
+            _delay_us(TWI_DELAY);             \
+            timeout++;                        \
+        }                                     \
+        if (timeout == TWI_RETRIES) {         \
+            _clear_bit(TWCR, bit);            \
+            return (TW_STATUS | TWI_TIMEOUT); \
+        }                                     \
     }
 
-#define _TWI_poll(condition)                                          \
-    {                                                                 \
-        uint32_t timeout = 0;                                         \
-        while ((TW_STATUS != condition) && (timeout < TWI_RETRIES)) { \
-            _delay_us(TWI_DELAY);                                     \
-            timeout++;                                                \
-        }                                                             \
-        if (timeout == TWI_RETRIES) {                                 \
-            return (TW_STATUS | TWI_TIMEOUT);                         \
-        }                                                             \
+#define _TWI_poll(condition)                  \
+    {                                         \
+        uint32_t timeout = 0;                 \
+        while ((TW_STATUS != condition) &&    \
+               (timeout < TWI_RETRIES)) {     \
+            _delay_us(TWI_DELAY);             \
+            timeout++;                        \
+        }                                     \
+        if (timeout == TWI_RETRIES) {         \
+            return (TW_STATUS | TWI_TIMEOUT); \
+        }                                     \
     }
 
 #define _TWI_wait _TWI_try(TWINT)
@@ -130,10 +132,8 @@ i2c_return_t TWI_write(i2c_mode_t mode, uint8_t data) {
 }
 
 i2c_return_t TWI_read(i2c_mode_t mode, uint8_t *buff) {
-    i2c_status_t operation = (
-        (mode == TWI_slave) ? TW_SR_DATA_ACK
-                            : TW_MR_DATA_ACK
-    );
+    i2c_status_t operation = ((mode == TWI_slave) ? TW_SR_DATA_ACK
+                                                  : TW_MR_DATA_ACK);
 
     _TWI_try(TWEA);
 
