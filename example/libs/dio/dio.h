@@ -26,7 +26,7 @@ typedef enum {
 } dio_pin_t;
 
 #define _dio(address, pin) (address | (pin << DIO_PIN_SHIFT))
-typedef enum {  // cleaner user-facing syntax than structs, sorry
+typedef enum {
     DIO_PA0 = _dio(DIO_PORTA, DIO_PIN0),
     DIO_PA1 = _dio(DIO_PORTA, DIO_PIN1),
     DIO_PA2 = _dio(DIO_PORTA, DIO_PIN2),
@@ -60,7 +60,6 @@ typedef enum {  // cleaner user-facing syntax than structs, sorry
     DIO_PD6 = _dio(DIO_PORTD, DIO_PIN6),
     DIO_PD7 = _dio(DIO_PORTD, DIO_PIN7)
 } dio_t;
-
 typedef enum {
     DIO_DIRECTION_INPUT = 0,
     DIO_DIRECTION_OUTPUT = 1
@@ -80,11 +79,51 @@ dio_level_t dio_get_level(dio_t dio);
 void dio_set_port_direction(dio_port_t port, dio_direction_t direction);
 void dio_set_port_level(dio_port_t port, dio_level_t value);
 #define dio_toggle(dio) dio_set_level(dio, !dio_get_level(dio))
-// this has to be a macro; compiler is angy
+// only macro work; compiler is angy
 #define dio_pulse(dio, delay) \
     dio_toggle(dio);          \
     _delay_us(delay);         \
-    dio_toggle(dio);
+    dio_toggle(dio)
 void dio_off();
 
 #endif
+
+// typedef struct dio_t {
+//     dio_port_t port;
+//     dio_pin_t pin;
+// } dio_t;
+
+// #define _dio(address, pin_num)  (dio_t){.port = address, .pin = pin_num}
+
+// #define DIO_PA0 _dio(DIO_PORTA, DIO_PIN0)
+// #define DIO_PA1 _dio(DIO_PORTA, DIO_PIN1)
+// #define DIO_PA2 _dio(DIO_PORTA, DIO_PIN2)
+// #define DIO_PA3 _dio(DIO_PORTA, DIO_PIN3)
+// #define DIO_PA4 _dio(DIO_PORTA, DIO_PIN4)
+// #define DIO_PA5 _dio(DIO_PORTA, DIO_PIN5)
+// #define DIO_PA6 _dio(DIO_PORTA, DIO_PIN6)
+// #define DIO_PA7 _dio(DIO_PORTA, DIO_PIN7)
+// #define DIO_PB0 _dio(DIO_PORTB, DIO_PIN0)
+// #define DIO_PB1 _dio(DIO_PORTB, DIO_PIN1)
+// #define DIO_PB2 _dio(DIO_PORTB, DIO_PIN2)
+// #define DIO_PB3 _dio(DIO_PORTB, DIO_PIN3)
+// #define DIO_PB4 _dio(DIO_PORTB, DIO_PIN4)
+// #define DIO_PB5 _dio(DIO_PORTB, DIO_PIN5)
+// #define DIO_PB6 _dio(DIO_PORTB, DIO_PIN6)
+// #define DIO_PB7 _dio(DIO_PORTB, DIO_PIN7)
+// #define DIO_PC0 _dio(DIO_PORTC, DIO_PIN0)
+// #define DIO_PC1 _dio(DIO_PORTC, DIO_PIN1)
+// #define DIO_PC2 _dio(DIO_PORTC, DIO_PIN2)
+// #define DIO_PC3 _dio(DIO_PORTC, DIO_PIN3)
+// #define DIO_PC4 _dio(DIO_PORTC, DIO_PIN4)
+// #define DIO_PC5 _dio(DIO_PORTC, DIO_PIN5)
+// #define DIO_PC6 _dio(DIO_PORTC, DIO_PIN6)
+// #define DIO_PC7 _dio(DIO_PORTC, DIO_PIN7)
+// #define DIO_PD0 _dio(DIO_PORTD, DIO_PIN0)
+// #define DIO_PD1 _dio(DIO_PORTD, DIO_PIN1)
+// #define DIO_PD2 _dio(DIO_PORTD, DIO_PIN2)
+// #define DIO_PD3 _dio(DIO_PORTD, DIO_PIN3)
+// #define DIO_PD4 _dio(DIO_PORTD, DIO_PIN4)
+// #define DIO_PD5 _dio(DIO_PORTD, DIO_PIN5)
+// #define DIO_PD6 _dio(DIO_PORTD, DIO_PIN6)
+// #define DIO_PD7 _dio(DIO_PORTD, DIO_PIN7)
