@@ -37,18 +37,6 @@
         }                                                              \
     }
 
-#define _TWI_poll(condition)                                          \
-    {                                                                 \
-        uint32_t timeout = 0;                                         \
-        while ((TW_STATUS != condition) && (timeout < TWI_RETRIES)) { \
-            _delay_us(TWI_DELAY);                                     \
-            timeout++;                                                \
-        }                                                             \
-        if (timeout == TWI_RETRIES) {                                 \
-            return (TW_STATUS | TWI_TIMEOUT);                         \
-        }                                                             \
-    }
-
 __finline static
 i2c_return_t TWI_poll(i2c_status_t operation) {
     uint32_t timeout = 0;
