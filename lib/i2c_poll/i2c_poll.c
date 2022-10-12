@@ -71,7 +71,7 @@ i2c_return_t TWI_stop() {
     _set_bit(TWCR, TWSTO);
     _TWI_wait;
 
-    TWBR = 0;
+    TWDR = 0;
     TWCR = 0;
 
     return (TW_STATUS | TWI_OK);
